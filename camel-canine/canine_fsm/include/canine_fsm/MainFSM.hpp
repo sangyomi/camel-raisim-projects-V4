@@ -27,7 +27,7 @@
 
 #include <canine_raisim//RobotVisualization.hpp>
 
-#include <canine_simulation/SimulCommunication.hpp>
+#include "SimulCommunication.hpp"
 
 void StartFSM();
 void clearSharedMemory();

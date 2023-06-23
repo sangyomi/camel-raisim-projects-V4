@@ -16,6 +16,7 @@ pthread_t NRTThreadCANRB;
 
 pUI_COMMAND sharedCommand;
 pSHM sharedMemory;
+pCUSTOM_DATA sharedCustom;
 pAXIS joystickAxis;
 pBUTTON joystickButton;
 
@@ -374,6 +375,7 @@ void StartFSM()
 {
     sharedCommand = (pUI_COMMAND)malloc(sizeof(UI_COMMAND));
     sharedMemory = (pSHM)malloc(sizeof(SHM));
+    sharedCustom = (pCUSTOM_DATA)malloc(sizeof(CUSTOM_DATA));
     joystickAxis = (pAXIS)malloc(sizeof(AXIS));
     joystickButton = (pBUTTON)malloc(sizeof(BUTTON));
 

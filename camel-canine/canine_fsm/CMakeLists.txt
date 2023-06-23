@@ -4,6 +4,7 @@ project(canine_fsm LANGUAGES CXX)
 find_package(camel-tools-thread REQUIRED)
 find_package(camel-tools-sensor REQUIRED)
 find_package(RBDL COMPONENTS URDFREADER REQUIRED)
+find_package(Qt5 COMPONENTS Widgets Network REQUIRED)
 
 include_directories(
         include
@@ -21,6 +22,8 @@ include_directories(
         ${GaitScheduler_SOUCRE_DIR}/include
         ${canine_util_SOURCE_DIR}/include
 
+        ${canine_simulation_SOURCE_DIR}/include
+
         ${RBDL_INCULDE_DIR}
 
 )
@@ -35,6 +38,7 @@ link_libraries(mscl stdc++ pthread)
 add_library(canine_fsm
         STATIC
         src/MainFSM.cpp
+        src/SimulCommunication.cpp
         )
 
 SET(PUBLIC_LIBS
@@ -65,4 +69,6 @@ target_link_libraries(canine_fsm
 
         ${RBDL_LIBRARY}
         ${RBDL_URDFREADER_LIBRARY}
+
+        Qt5::Network
 )
