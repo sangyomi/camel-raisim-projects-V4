@@ -211,7 +211,7 @@ void* sendData(void* arg)
 {
     while(1)
     {
-        const QHostAddress serverAddress("192.168.0.19");
+        const QHostAddress serverAddress("10.125.63.93");
         const quint16 serverPort = 34567;
 
         QTcpSocket* socket = new QTcpSocket();

@@ -70,5 +70,7 @@ target_link_libraries(canine_fsm
         ${RBDL_LIBRARY}
         ${RBDL_URDFREADER_LIBRARY}
 
+        canine_util
+
         Qt5::Network
 )
