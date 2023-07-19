@@ -11,6 +11,8 @@
 #include <QApplication>
 #include <QtCore>
 #include <pthread.h>
+#include <unistd.h>
+#include <iostream>
 #include <canine_util/RobotDescription.hpp>
 #include <canine_util/SharedMemory.hpp>
 #include <canine_util/JoystickInfo.hpp>

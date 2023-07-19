@@ -150,6 +150,9 @@ void serializeSharedMemoryInfo (QDataStream &stream)
 
 void* receiveData(void *arg)
 {
+    struct timespec TIME_NEXT;
+    struct timespec TIME_NOW;
+
     const QHostAddress serverAddress(QHostAddress::Any);
     const quint16 serverPort = 12345;
 
@@ -157,6 +160,7 @@ void* receiveData(void *arg)
     server.listen(serverAddress, serverPort);
 
     while (server.isListening()) {
+        clock_gettime(CLOCK_REALTIME, &TIME_NEXT);
         if (server.waitForNewConnection()) {
             QTcpSocket *socket = server.nextPendingConnection();
 
@@ -204,21 +208,29 @@ void* receiveData(void *arg)
                 socket->deleteLater();
             }
         }
+        clock_gettime(CLOCK_REALTIME, &TIME_NOW);
+//        std::cout << "[COMMUNICATION] receive data RT Thread time : " << timediff_us(&TIME_NEXT, &TIME_NOW) * 0.001 << " ms" << std::endl;
+        usleep(100);
     }
 }
 
 void* sendData(void* arg)
 {
-    while(1)
-    {
-        const QHostAddress serverAddress("10.125.63.93");
-        const quint16 serverPort = 34567;
+    struct timespec TIME_NEXT;
+    struct timespec TIME_NOW;
 
+//    const QHostAddress serverAddress("192.168.0.159"); //wifi
+    const QHostAddress serverAddress("10.42.0.129"); // hotspot
+    const quint16 serverPort = 34567;
+
+    while(true)
+    {
+        clock_gettime(CLOCK_REALTIME, &TIME_NEXT);
         QTcpSocket* socket = new QTcpSocket();
         socket->connectToHost(serverAddress, serverPort);
 
-        if (socket->waitForConnected()) {
-
+        if (socket->waitForConnected())
+        {
             QByteArray byteArray;
             QDataStream stream(&byteArray, QIODevice::WriteOnly);
 
@@ -234,48 +246,54 @@ void* sendData(void* arg)
             socket->write(byteArray);
             socket->flush();
 
-            if (socket->waitForReadyRead()) {
-                QDataStream in(socket);
-                in.setVersion(QDataStream::Qt_5_0);
+            socket->disconnectFromHost();
+            socket->deleteLater();
 
-                qint64 blockSize = 0;
-
-          if (socket->bytesAvailable() < sizeof(qint64)) {
-                    socket->waitForReadyRead();
-                }
-                in >> blockSize;
-
-                QByteArray data;
-                while (socket->bytesAvailable() < blockSize) {
-                    socket->waitForReadyRead();
-                }
-                data = socket->read(blockSize);
-
-                QDataStream dataStream(&data, QIODevice::ReadOnly);
-
-                if (dataStream.status() != QDataStream::Ok) {
-                    qWarning() << "Error while reading data: " << dataStream.status();
-                }
-                else
-                {
-//                    qDebug() << "serializeSharedMemoryInfo is done";
-//                    qDebug() << "sharedCommand->userCommand: " << sharedCommand->userCommand;
-//                    qDebug() << "sharedCommand->userParamChar: " << sharedCommand->userParamChar;
-                }
-
-                socket->disconnectFromHost();
-                socket->deleteLater();
-            }
+//            if (socket->waitForReadyRead()) {
+//                QDataStream in(socket);
+//                in.setVersion(QDataStream::Qt_5_0);
+//
+//                qint64 blockSize = 0;
+//
+//          if (socket->bytesAvailable() < sizeof(qint64)) {
+//                    socket->waitForReadyRead();
+//                }
+//                in >> blockSize;
+//
+//                QByteArray data;
+//                while (socket->bytesAvailable() < blockSize) {
+//                    socket->waitForReadyRead();
+//                }
+//                data = socket->read(blockSize);
+//
+//                QDataStream dataStream(&data, QIODevice::ReadOnly);
+//
+//                if (dataStream.status() != QDataStream::Ok) {
+//                    qWarning() << "Error while reading data: " << dataStream.status();
+//                }
+//                else
+//                {
+////                    qDebug() << "serializeSharedMemoryInfo is done";
+////                    qDebug() << "sharedCommand->userCommand: " << sharedCommand->userCommand;
+////                    qDebug() << "sharedCommand->userParamChar: " << sharedCommand->userParamChar;
+//                }
+//
+//                socket->disconnectFromHost();
+//                socket->deleteLater();
+//            }
         }
         else {
-//            qWarning() << "Could not connect to server: " << socket->errorString();
+            qWarning() << "Could not connect to server: " << socket->errorString();
         }
+        clock_gettime(CLOCK_REALTIME, &TIME_NOW);
+        std::cout << "[COMMUNICATION] send data RT Thread time : " << timediff_us(&TIME_NEXT, &TIME_NOW) * 0.001 << " ms" << std::endl;
+        usleep(20000);
     }
 
 }
 
 void StartCommunication()
 {
-    int thread_id_rt2 = generate_rt_thread(QtClient, sendData, "client_thread", 3, 0,NULL);
+    int thread_id_rt2 = generate_rt_thread(QtClient, sendData, "client_thread", 6, 0,NULL);
     int thread_id_rt3 = generate_rt_thread(QtServer, receiveData, "server_thread", 4, 0, NULL);
 }
